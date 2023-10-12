@@ -1,0 +1,42 @@
+name: Trigger auto deployment for democontainersuresh
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ master ]
+    paths:
+    - '**'
+    - '.github/workflows/democontainersuresh-AutoDeployTrigger-5182c761-6d5f-4152-8587-b87d65a57e87.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:
+      
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.DEMOCONTAINERSURESH_AZURE_CREDENTIALS }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }} 
+          registryUrl: registrysuresh.azurecr.io
+          registryUsername: ${{ secrets.DEMOCONTAINERSURESH_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.DEMOCONTAINERSURESH_REGISTRY_PASSWORD }}
+          containerAppName: democontainersuresh
+          resourceGroup: demosuresh
+          imageToBuild: registrysuresh.azurecr.io/democontainersuresh:${{ github.sha }}
+          dockerfilePath: Dockerfile
+
+     
+
