@@ -1,0 +1,42 @@
+name: Trigger auto deployment for dockerproject
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ master ]
+    paths:
+    - '**'
+    - '.github/workflows/dockerproject-AutoDeployTrigger-8d580b5f-93ac-424e-adbf-191dce5e5e73.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:
+      
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.DOCKERPROJECT_AZURE_CREDENTIALS }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }} 
+          registryUrl: dockersampleproject1.azurecr.io
+          registryUsername: ${{ secrets.DOCKERPROJECT_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.DOCKERPROJECT_REGISTRY_PASSWORD }}
+          containerAppName: dockerproject
+          resourceGroup: dockerDeploy
+          imageToBuild: dockersampleproject1.azurecr.io/dockerproject:${{ github.sha }}
+          dockerfilePath: Dockerfile
+
+     
+
