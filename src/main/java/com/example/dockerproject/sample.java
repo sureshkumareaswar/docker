@@ -8,6 +8,6 @@ public class sample {
 
     @RequestMapping("/hello")
     public String hello(){
-        return "Hai iam docker. ";
+        return "Hai iam docker";
     }
 }
